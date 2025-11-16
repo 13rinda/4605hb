@@ -76,16 +76,35 @@
       border-radius:6px;
       box-shadow:0 4px 12px rgba(0,0,0,0.3);
     }
-    nav.navmenu ul li:hover > ul{
+    .navmenu ul li:hover > ul{
       display:block;
     }
-    nav.navmenu ul li ul li{
+    .navmenu ul li ul li{
       width:100%;
     }
-    nav.navmenu ul li ul li a{
+    .navmenu ul li ul li a{
       padding:6px 16px;
       font-weight:400;
     }
+
+      /* SECOND-LEVEL DROPDOWN (dropdown inside dropdown) */
+    .navmenu ul li ul li ul {
+      top: 0;               /* align with parent item */
+      left: -180px;         /* shift to the LEFT so it doesn't overlay */
+      display: none;
+      position: absolute;
+      background: rgba(11,16,32,0.95);
+      padding: 12px 0;
+      min-width: 180px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* show on hover */
+    .navmenu ul li ul li:hover > ul {
+      display: block;
+    }
+
     nav.navmenu i.mobile-nav-toggle{
       display:none;
       font-size:1.4rem;
@@ -153,12 +172,61 @@
     .controls{position:fixed;left:18px;bottom:18px;z-index:60;background:rgba(3,6,12,0.6);padding:10px;border-radius:10px;color:var(--muted);backdrop-filter:blur(4px);font-size:13px}
     .controls input[type=range]{width:120px}
 
-    @media (max-width:880px){
-      .hero__content{grid-template-columns:1fr;gap:18px;padding:28px}
-      .card{order:2}
-      nav.navmenu ul{flex-direction:column;gap:12px}
-      nav.navmenu i.mobile-nav-toggle{display:block}
-    }
+    /* --- MOBILE MENU FIX --- */
+@media (max-width: 880px) {
+  nav.navmenu i.mobile-nav-toggle {
+    display: block !important;
+    position: relative;
+    font-size: 1.8rem;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 2000;
+  }    
+
+  /* hide all dropdowns initially */
+  .navmenu ul li ul {
+    display: none !important;
+  }
+
+  /* hide menu by default */
+  nav.navmenu ul {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(11,16,32,0.95);
+    position: absolute;
+    top: var(--header-height);
+    right: 0;
+    width: 100%;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* show only when .open is toggled */
+  nav.navmenu.open ul {
+    display: flex;
+  }
+
+  /* disable hover dropdowns on mobile */
+  .navmenu ul li:hover > ul {
+    display: none;
+  }
+
+  /* dropdowns appear only on click */
+  .navmenu.open ul li.active-dropdown > ul {
+    display: block !important;
+    position: static;
+    padding-left: 20px;
+  }
+
+  /* ensure nested dropdowns display correctly */
+  .navmenu.open ul li ul li.active-dropdown > ul {
+    display: block !important;
+    position: relative;  /* change from static to relative */
+    padding-left: 20px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -238,11 +306,41 @@
 
   <script>
     // NAVBAR MOBILE TOGGLE
+    //const mobileToggle = document.querySelector('.mobile-nav-toggle');
+    //const navmenu = document.getElementById('navmenu');
+    //mobileToggle.addEventListener('click', ()=>{
+    //  navmenu.classList.toggle('open');
+    //});
+
+    // MOBILE DROPDOWN CLICK LOGIC
     const mobileToggle = document.querySelector('.mobile-nav-toggle');
     const navmenu = document.getElementById('navmenu');
-    mobileToggle.addEventListener('click', ()=>{
+
+    mobileToggle.addEventListener('click', () => {
       navmenu.classList.toggle('open');
     });
+
+    // MOBILE DROPDOWN CLICK HANDLER
+    document.querySelectorAll(".toggle-dropdown").forEach(icon => {
+      icon.addEventListener("click", (e) => {
+        e.preventDefault();           // stop default <a> jump
+        e.stopPropagation();          // stop click from bubbling to parent li
+        const li = icon.closest("li");
+        li.classList.toggle("active-dropdown");
+      });
+    });
+
+    // MOBILE DROPDOWN CLICK HANDLER
+    document.querySelectorAll(".dropdown > a").forEach(link => {
+      link.addEventListener("click", (e) => {
+        // only trigger on mobile
+        if(window.innerWidth <= 880){
+          e.preventDefault();           // prevent jump
+          const li = link.closest("li");
+          li.classList.toggle("active-dropdown");
+        }
+      });
+    }); 
 
     // HERO CANVAS NETWORK WITH HOVER GLOW
     const canvas = document.getElementById('networkCanvas');
