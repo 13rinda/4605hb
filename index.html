@@ -173,13 +173,35 @@
     .controls input[type=range]{width:120px}
 
     /* --- MOBILE MENU FIX --- */
-@media (max-width: 880px) {
-  nav.navmenu i.mobile-nav-toggle {
+@media (max-width: 925px) {
+
+  /* allow hero to grow taller than viewport */
+  .hero {
+    height: auto !important;
+    min-height: 100svh;
+    overflow: visible !important;  /* allow dropdown to expand */
+  }
+
+  /* stack text + card vertically */
+  .hero__content {
+    grid-template-columns: 1fr;
+    padding: 24px 16px 48px;
+  }
+
+  /* prevent floating controls from covering text */
+  .controls {
+    position: static;
+    margin: 16px;
+  }
+
+  i.mobile-nav-toggle {
     display: block !important;
+  }
+
+  nav.navmenu {
     position: relative;
     font-size: 1.8rem;
     cursor: pointer;
-    padding: 10px;
     z-index: 2000;
   }    
 
@@ -188,19 +210,29 @@
     display: none !important;
   }
 
-  /* hide menu by default */
   nav.navmenu ul {
-    display: none;
-    flex-direction: column;
-    gap: 12px;
-    background: rgba(11,16,32,0.95);
-    position: absolute;
-    top: var(--header-height);
-    right: 0;
-    width: 100%;
-    padding: 20px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-  }
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+
+  position: absolute;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+
+  padding: 16px 20px;
+  background: #ffffff;
+  color: #0b1020;
+
+  overflow-x: hidden;
+   max-height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
   /* show only when .open is toggled */
   nav.navmenu.open ul {
@@ -225,7 +257,53 @@
     position: relative;  /* change from static to relative */
     padding-left: 20px;
   }
+
+  /* mobile menu links */
+  nav.navmenu ul li a {
+    color: #0b1020;                    /* dark text on white */
+    width: 100%;
+    display: block;
+    padding: 10px 0;
+  }
+
+  /* remove horizontal shifting from desktop dropdowns */
+  nav.navmenu ul li ul {
+    position: static !important;       /* stay inside screen */
+    left: auto !important;
+    right: auto !important;
+    min-width: unset;
+    padding-left: 16px;
+    background: #ffffff;               /* same white background */
+  }
+
+  /* second-level dropdowns */
+  nav.navmenu ul li ul li ul {
+    position: static !important;
+    padding-left: 16px;
+    background: #ffffff;
+  }
+
+  /* prevent chevrons from pushing width */
+  nav.navmenu i {
+    margin-left: 6px;
+  }
+
+  /* ensure nothing overflows horizontally */
+  nav.navmenu,
+  nav.navmenu * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
+    /* Hide range sliders visually but keep JS functionality */
+  .controls input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
 
   </style>
 </head>
@@ -262,6 +340,7 @@
           <li><a href="contact.html">Contact</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+
       </nav>
     </div>
   </header>
@@ -306,8 +385,8 @@ Drawing on deep real estate expertise, we design every project to maximize your 
     </section>
 
     <div class="controls" role="region" aria-label="Network controls">
-      <label style="display:block;margin-bottom:6px">Density <input id="densRange" type="range" min="12" max="220" value="64"></label>
-      <label style="display:block;margin-top:8px">Motion <input id="speedRange" type="range" min="0" max="1" step="0.01" value="0.2"></label>
+      <label style="display:block;margin-bottom:6px"><input id="densRange" type="range" min="12" max="220" value="64"></label>
+      <label style="display:block;margin-top:8px"><input id="speedRange" type="range" min="0" max="1" step="0.01" value="0.2"></label>
     </div>
   </main>
 
