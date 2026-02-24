@@ -37,6 +37,39 @@
   ======================================================== -->
 </head>
 
+  <!-- Neural Network Overlay Styles -->
+  <style>
+    .page-title {
+      position: relative;
+      overflow: hidden;
+    }
+
+    #headerCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+  .member-img {
+    width: 250px;          /* set your desired width */
+    height: 300px;         /* height gives ellipse shape */
+    overflow: hidden;
+    border-radius: 50%;    /* makes it an ellipse */
+    margin: 0 auto;
+  }
+
+  .member-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;     /* crops & centers face */
+    object-position: center;
+  }
+  </style>
+
 <body class="services-page">
 
   <header id="header" class="header d-flex align-items-center fixed-top">
@@ -45,7 +78,7 @@
       <a href="index.html" class="logo d-flex align-items-center">
         <!-- Uncomment the line below if you also wish to use an image logo -->
         <!-- <img src="assets/img/logo.png" alt=""> -->
-        <h1 class="sitename">UpConstruction</h1> <span>.</span>
+        <h1 class="sitename">13rinda Inc</h1> <span>.</span>
       </a>
 
       <nav id="navmenu" class="navmenu">
@@ -82,18 +115,19 @@
 
   <main class="main">
 
-    <!-- Page Title -->
-    <div class="page-title" style="background-image: url(assets/img/page-title-bg.jpg);">
-      <div class="container position-relative">
-        <h1>Services</h1>
-        <nav class="breadcrumbs">
-          <ol>
-            <li><a href="index.html">Home</a></li>
-            <li class="current">Services</li>
-          </ol>
-        </nav>
-      </div>
-    </div><!-- End Page Title -->
+<div class="page-title" style="background-image: url(assets/img/page-title-bg.jpg);">
+  <canvas id="headerCanvas"></canvas> <!-- ← Add this -->
+  <div class="container position-relative">
+    <h1>Services</h1>
+    <nav class="breadcrumbs">
+      <ol>
+        <li><a href="index.html">Home</a></li>
+        <li class="current">Services</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
 
     <!-- Services Section -->
     <section id="services" class="services section">
@@ -504,7 +538,7 @@
     </div>
 
     <div class="container copyright text-center mt-4">
-      <p>© <span>Copyright</span> <strong class="px-1 sitename">UpConstruction</strong> <span>All Rights Reserved</span></p>
+      <p>© <span>Copyright</span> <strong class="px-1 sitename">13rinda Inc</strong> <span>All Rights Reserved</span></p>
       <div class="credits">
         <!-- All the links in the footer should remain intact. -->
         <!-- You can delete the links only if you've purchased the pro version. -->
@@ -535,6 +569,94 @@
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
 
+<!-- Neural Network Overlay Script (Blue AI version) -->
+  <script>
+    const canvas = document.getElementById('headerCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const cfg = {
+      nodeCount: 64,
+      nodeRadius: { min: 3, max: 5 },
+      linkDistance: 220,
+      speed: 0.2,
+      linkAlpha: 0.22,
+      nodeColor: '#7af0ff',
+      glowColor: '#6b6cff'
+    };
+
+    const nodes = [];
+    for (let i = 0; i < cfg.nodeCount; i++) {
+      nodes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * cfg.speed,
+        vy: (Math.random() - 0.5) * cfg.speed,
+        radius: cfg.nodeRadius.min + Math.random() * (cfg.nodeRadius.max - cfg.nodeRadius.min)
+      });
+    }
+
+    const mouse = { x: -9999, y: -9999 };
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    });
+    canvas.addEventListener('mouseleave', () => {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw links
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < cfg.linkDistance) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(122, 240, 255, ${cfg.linkAlpha * (1 - dist / cfg.linkDistance)})`;
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw nodes
+      nodes.forEach(n => {
+        const distToMouse = Math.sqrt((n.x - mouse.x) ** 2 + (n.y - mouse.y) ** 2);
+        let glow = 0;
+        if (distToMouse < 100) glow = (1 - distToMouse / 100) * 0.5;
+
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+        ctx.fillStyle = cfg.nodeColor;
+        ctx.shadowBlur = 10 * glow;
+        ctx.shadowColor = cfg.glowColor;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        n.x += n.vx;
+        n.y += n.vy;
+
+        if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+      });
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
 </body>
 
 </html>
